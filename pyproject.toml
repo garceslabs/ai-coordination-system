@@ -1,0 +1,19 @@
+[project]
+name = "ai-coordination-system"
+version = "0.1.0"
+description = "Production-style coordination infrastructure for multi-agent AI workflows, escalation routing, and human-in-the-loop reliability."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.8.0"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
