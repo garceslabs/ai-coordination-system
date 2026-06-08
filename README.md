@@ -53,35 +53,26 @@ graph TD
 sequenceDiagram
     participant U as User
     participant C as Coordinator
-    participant Q as Task Queue
-    participant R as Router
-    participant RA as Research Agent
-    participant AA as Analysis Agent
-    participant REP as Reporting Agent
     participant SM as State Manager
+    participant A as Agent
 
     U->>C: run_workflow("Analyze AI market trends")
     C->>SM: create_workflow()
-    C->>C: _plan() → [RESEARCH, ANALYSIS, REPORT]
-    C->>Q: enqueue_batch(tasks)
+    Note over C: plan → [RESEARCH, ANALYSIS, REPORT]
 
-    loop Each task (in order)
-        C->>Q: dequeue()
-        C->>SM: transition_task(RUNNING)
-        C->>R: route(task)
-        R-->>C: matched_agent
-        C->>RA: execute(task)
+    loop Each task
+        C->>SM: PENDING → RUNNING
+        C->>A: execute(task)
         alt Success
-            RA-->>C: {research: {...}}
-            C->>SM: transition_task(COMPLETED)
-        else Failure (retryable)
-            C->>SM: transition_task(FAILED)
-            C->>SM: transition_task(PENDING) ← retry reset
+            A-->>C: output
+            C->>SM: RUNNING → COMPLETED
+        else Retryable failure
+            C->>SM: RUNNING → FAILED → PENDING
             Note over C: exponential back-off
         end
     end
 
-    C->>SM: transition_workflow(COMPLETED)
+    C->>SM: workflow → COMPLETED
     C-->>U: WorkflowResult
 ```
 
